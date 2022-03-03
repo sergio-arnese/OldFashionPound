@@ -4,27 +4,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OldFashionPoundReader {
+    private int currIndex = 0;
 
     public OldFashionPound fromString(String ofpRepresentation) {
         verifyNotEmptyRepresentation(ofpRepresentation);
 
         verifyExpectedOrder(getIndexOfPound(ofpRepresentation), getIndexOfShilling(ofpRepresentation), getIndexOfPenny(ofpRepresentation));
 
-        ComponentsExtractor componentsExtractor = new ComponentsExtractor();
-
-        int pounds = componentsExtractor.extractComponent(getIndexOfPound(ofpRepresentation), ofpRepresentation);
-        int shillings = componentsExtractor.extractComponent(getIndexOfShilling(ofpRepresentation), ofpRepresentation);
-        int pennies = componentsExtractor.extractComponent(getIndexOfPenny(ofpRepresentation), ofpRepresentation);
+        this.currIndex = 0;
+        int pounds = extractComponent(getIndexOfPound(ofpRepresentation), ofpRepresentation);
+        int shillings = extractComponent(getIndexOfShilling(ofpRepresentation), ofpRepresentation);
+        int pennies = extractComponent(getIndexOfPenny(ofpRepresentation), ofpRepresentation);
 
         return new OldFashionPound(pounds, shillings, pennies);
     }
 
     private void verifyNotEmptyRepresentation(String ofpRepresentation) {
-        if( ofpRepresentation == null ) {
+        if (ofpRepresentation == null) {
             throw new IllegalArgumentException("representation must be not null");
         }
 
-        if( "".equals(ofpRepresentation) ) {
+        if ("".equals(ofpRepresentation)) {
             throw new IllegalArgumentException("representation must be not null");
         }
     }
@@ -44,19 +44,19 @@ public class OldFashionPoundReader {
     private void verifyExpectedOrder(int indexOfPound, int indexOfShilling, int indexOfPenny) {
         List<Integer> indexes = new ArrayList<>();
 
-        if( indexOfPound != -1 ) {
+        if (indexOfPound != -1) {
             indexes.add(indexOfPound);
         }
 
-        if( indexOfShilling != -1 ) {
+        if (indexOfShilling != -1) {
             indexes.add(indexOfShilling);
         }
 
-        if( indexOfPenny != -1 ) {
+        if (indexOfPenny != -1) {
             indexes.add(indexOfPenny);
         }
 
-        if( indexes.size() == 0 ) {
+        if (indexes.size() == 0) {
             throw new IllegalArgumentException("empty representation is not allowed");
         }
 
@@ -64,8 +64,18 @@ public class OldFashionPoundReader {
 
         orderedIndexes.sort(Integer::compareTo);
 
-        if( ! indexes.equals(orderedIndexes) ) {
+        if (!indexes.equals(orderedIndexes)) {
             throw new IllegalArgumentException("representation has not expected order: Xp Ys Zd");
+        }
+    }
+
+    private int extractComponent(int indexOfComponent, String ofpRepresentation) {
+        if (indexOfComponent != -1) {
+            int extractedPennies = Integer.parseInt(ofpRepresentation.substring(currIndex, indexOfComponent).trim());
+            this.currIndex = indexOfComponent + 1;
+            return extractedPennies;
+        } else {
+            return 0;
         }
     }
 }
